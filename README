@@ -4,3 +4,7 @@ Professor: Dr. Lundberg
 
 Kevin McClure
 Patrick Varin
+
+CameraTest3.py -- Not functional code, used it to create MultipleColorTracker.py
+MultipleColorTracker.py -- Tracks lots of colored things, this is what we'll build off of
+TrackBlueBall.py -- Kevin screwing around and attempting to learn OpenCV2
