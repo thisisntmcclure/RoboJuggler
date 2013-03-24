@@ -11,8 +11,7 @@ function forcedRampSim_term
     tspan = [0 12];
     rampPolicy = @(t, state) cos(t);
     derivatives = @(t,state) ballDynamics(t,state,params,rampPolicy);
-    odeEvts = @(t,state) events(t,state,params,rampPolicy);
-    options = odeset('Events',odeEvts);
+    options = odeset('Events',@events);
     
     %solve the problem
     [T, V, TE, VE, ~] = ode45(derivatives,tspan,V0,options);
@@ -29,12 +28,12 @@ function forcedRampSim_term
     plot(T,constraintForce(T,V',params,rampPolicy))
     hold on
     plot(TE,constraintForce(TE,VE',params,rampPolicy),'r*')
-end
-
-function [value, terminal, direction] = events(t,state,params,rampPolicy)
-    value = []; terminal = []; direction = [];
-    %condition for the ball flying off of the ramp
-    value(1) = constraintForce(t,state,params,rampPolicy);
-    terminal(1) = 0;
-    direction(1) = -1;
+    
+    function [value, terminal, direction] = events(t,state)
+        value = []; terminal = []; direction = [];
+        %condition for the ball flying off of the ramp
+        value(1) = constraintForce(t,state,params,rampPolicy);
+        terminal(1) = 0;
+        direction(1) = -1;
+    end
 end
