@@ -1,17 +1,12 @@
-function forcedRampSim_term
-    %define parameters
-    m = 0.010;
-    r = 0.026;
-    I = 2/3*m*r^2;%moment of inertia of a thin walled ball
-    g = 9.81;
-    params = struct('m',m,'r',r,'I',I,'g',g);
-    
-    %define problem
-    V0 = [7.2;0;0];
-    tspan = [0 12];
-    rampPolicy = @(t, state) cos(t);
+function forcedRampSim_term(params,problem)
+
+    %extract the problem
+    V0 = problem.V0;
+    tspan = problem.tspan;
+    rampPolicy = problem.rampPolicy;
     derivatives = @(t,state) ballDynamics(t,state,params,rampPolicy);
-    options = odeset('Events',@events);
+    odeEvts = @(t,state) events(t,state,params,rampPolicy);
+    options = odeset('Events',odeEvts);
     
     %solve the problem
     [T, V, TE, VE, ~] = ode45(derivatives,tspan,V0,options);
@@ -19,21 +14,33 @@ function forcedRampSim_term
     %plot the solution
     r = V(:,1);theta = V(:,3);
     x = r.*cos(theta); y = r.*sin(theta);
-    r_e = VE(:,1);theta_e = VE(:,3);
-    x_e = r_e.*cos(theta_e); y_e = r_e.*sin(theta_e);
-    figure(1)
-    animateBall(T,x,y)
-    plot(x_e,y_e,'ro')
-    figure(2)
+    figure(1); clf
+    animateRamp(T,x,y,params.l);
+    if size(VE)
+        r_e = VE(:,1);theta_e = VE(:,3);
+        x_e = r_e.*cos(theta_e); y_e = r_e.*sin(theta_e);
+        plot(x_e,y_e,'ro')
+    end
+    
+    %plot the constraint force
+    figure(2); clf
     plot(T,constraintForce(T,V',params,rampPolicy))
     hold on
-    plot(TE,constraintForce(TE,VE',params,rampPolicy),'r*')
-    
-    function [value, terminal, direction] = events(t,state)
-        value = []; terminal = []; direction = [];
-        %condition for the ball flying off of the ramp
-        value(1) = constraintForce(t,state,params,rampPolicy);
-        terminal(1) = 0;
-        direction(1) = -1;
+    if size(VE)
+        plot(TE,constraintForce(TE,VE',params,rampPolicy),'r*')
     end
+end
+
+function [value, terminal, direction] = events(t,state,params,rampPolicy)
+    value = []; terminal = []; direction = [];
+    %condition for the ball flying off of the ramp
+    value(1) = constraintForce(t,state,params,rampPolicy);
+    terminal(1) = 0;
+    direction(1) = -1;
+
+    %condition for the ball falling off of the end of the ramp
+    radius = state(1);
+    value(2) = abs(radius)-params.l;
+    terminal(2) = 1;
+    direction(2) = 0;
 end
