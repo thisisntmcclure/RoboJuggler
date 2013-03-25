@@ -1,8 +1,6 @@
 import cv
 global imghsv
 
-# Testing kevin pushing to github, ignore this comment
-
 def getthresholdedimg(im):
 
 	'''this function take RGB image.Then convert it into HSV for easy colour detection and threshold it with yellow and blue part as white and all other regions as black.Then return that image'''
