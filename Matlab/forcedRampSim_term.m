@@ -1,4 +1,4 @@
-function forcedRampSim_term(params,problem)
+function [T, V, VE, flag] = forcedRampSim_term(params,problem,verbose)
 
     %extract the problem
     V0 = problem.V0;
@@ -9,25 +9,32 @@ function forcedRampSim_term(params,problem)
     options = odeset('Events',odeEvts);
     
     %solve the problem
-    [T, V, TE, VE, ~] = ode45(derivatives,tspan,V0,options);
-    
-    %plot the solution
-    r = V(:,1);theta = V(:,3);
-    x = r.*cos(theta); y = r.*sin(theta);
-    figure(1); clf
-    animateRamp(T,x,y,params.l);
-    if size(VE)
-        r_e = VE(:,1);theta_e = VE(:,3);
-        x_e = r_e.*cos(theta_e); y_e = r_e.*sin(theta_e);
-        plot(x_e,y_e,'ro')
+    [T, V, TE, VE, IE] = ode45(derivatives,tspan,V0,options);
+    if size(IE)
+        flag = IE(end);
+    else
+        flag = 0;
     end
     
-    %plot the constraint force
-    figure(2); clf
-    plot(T,constraintForce(T,V',params,rampPolicy))
-    hold on
-    if size(VE)
-        plot(TE,constraintForce(TE,VE',params,rampPolicy),'r*')
+    if verbose
+        %plot the solution
+        r = V(:,1);theta = V(:,3);
+        x = r.*cos(theta); y = r.*sin(theta);
+        figure(1); clf
+        animateRamp(T,x,y,params.l);
+        if size(VE)
+            r_e = VE(:,1);theta_e = VE(:,3);
+            x_e = r_e.*cos(theta_e); y_e = r_e.*sin(theta_e);
+            plot(x_e,y_e,'ro')
+        end
+
+        %plot the constraint force
+        figure(2); clf
+        plot(T,constraintForce(T,V',params,rampPolicy))
+        hold on
+        if size(VE)
+            plot(TE,constraintForce(TE,VE',params,rampPolicy),'r*')
+        end
     end
 end
 
