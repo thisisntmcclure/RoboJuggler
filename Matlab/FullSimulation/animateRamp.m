@@ -25,7 +25,6 @@ function animateRamp(t,x,y,theta,ramp_length)
     %next plots
     for i=2:length(t)
         pause(t(i)-t(i-1))
-        plot(x,y)
         xb = x(i); yb = y(i);        
         xr = [r_x(i), -r_x(i)];
         yr = [r_y(i), -r_y(i)];
@@ -33,5 +32,6 @@ function animateRamp(t,x,y,theta,ramp_length)
         refreshdata(rampHandle,'caller')
         refreshdata(rampEndHandle,'caller')
         drawnow
+        input('')
     end
 end

@@ -27,19 +27,19 @@ function [t_total, x_total, y_total, theta_total, x_events, y_events] = fullSim(
         [T, V, ~, VE, IE] = ode45(derivatives,tspan,V0,options);
         
         %append the new data to the old data
-        t_total = vertcat(t_total,T(2:end)); %#ok<*AGROW>
+        t_total = vertcat(t_total,T); %#ok<*AGROW>
         if airborne
-            x_new = V(2:end,1); y_new = V(2:end,2);
+            x_new = V(:,1); y_new = V(:,2);
         else
-            [x_new, y_new] = polar2Cart(V(2:end,1),V(2:end,3));
+            [x_new, y_new] = polar2Cart(V(:,1),V(:,3));
         end
         x_total = vertcat(x_total, x_new);
         y_total = vertcat(y_total, y_new);
-        theta_total = vertcat(theta_total, V(2:end,end));
+        theta_total = vertcat(theta_total, V(:,end));
         
         %check exit condition
         if size(IE)
-            tspan = [T(end) tspan(end)];
+            tspan = [T(end)+.0001 tspan(end)];
             if airborne
                 %extract events
                 x_events_new = VE(end,1);
