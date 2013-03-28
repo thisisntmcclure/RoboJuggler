@@ -1,4 +1,4 @@
-function main_new
+function main
     %define parameters
     m = 0.010;
     r = 0.026;
@@ -14,7 +14,7 @@ function main_new
     
     toss = struct('V0',[.1;0;0],...
                     'tspan',[0,3],...
-                    'rampPolicy',@(t, state, airborne) 12*cos(13*t));
+                    'rampPolicy',@(t, state, airborne) 16*cos(16*t));
                 
     tilt = struct('V0',[.1;0;1],...
                     'tspan',[0,3],...
