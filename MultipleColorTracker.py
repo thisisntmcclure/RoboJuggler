@@ -37,16 +37,24 @@ class Tracker(Thread):
 		self.lasty=0
 		self.h_min=COLOR_RANGE[color][0]
 		self.h_max=COLOR_RANGE[color][1]
+		self.cannyLowThreshold = 0
+		self.cannyMax_lowThreshold = 100
+		self.cannyRatio = 3
+		self.cannyKernel_size = 3
 		self.flag=flag
 		if self.flag:
 			cv2.namedWindow(self.color,1)
+			
 
 	def poll(self, img):
 		hsv_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 		thresh = cv2.inRange(hsv_img, self.h_min, self.h_max)
 		thresh = cv2.GaussianBlur(thresh, (9,9), 0)
-		circles = cv2.HoughCircles((thresh), cv.CV_HOUGH_GRADIENT,dp=2,minDist=400,minRadius=10, maxRadius=200)
+		detected_edges = cv2.Canny(thresh,self.cannyLowThreshold,self.cannyLowThreshold*self.cannyRatio,apertureSize = self.cannyKernel_size)
+		edges = cv2.bitwise_and(thresh,thresh,mask = detected_edges)  # just add some colours to edges from original image.
+		circles = cv2.HoughCircles((edges), cv.CV_HOUGH_GRADIENT,dp=2,minDist=400,minRadius=10, maxRadius=200)
 		cv2.imshow(self.color, thresh)
+		cv2.imshow(self.color+"- edges", edges)
 		print circles
 		self.draw(thresh, circles)
 
@@ -76,7 +84,7 @@ class Tracker(Thread):
 	
 		cv2.imshow("result", img)
 		if cv2.waitKey(1) >= 0:
-			return
+			return		
 
 if __name__ == '__main__':
 	print "Starting MultipleColorTracker:"
@@ -84,11 +92,12 @@ if __name__ == '__main__':
 	cv2.namedWindow("Result", 0)
 	if VideoCapture:
 		frame_copy = None
-	yellow = Tracker("yellow", True)
-	green = Tracker("green", True)
+	#yellow = Tracker("yellow", True)
+	#green = Tracker("green", True)
 	blue = Tracker("blue", True)
 	blue.start()
-	green.start()
+	#green.start()
+	#yellow.start()
 
 	while True:
 		try:
@@ -96,9 +105,11 @@ if __name__ == '__main__':
 			if success:
 				print "Grabbed frame:"
 				blue.poll(img)
-				green.poll(img)
+				#green.poll(img)
+				#yellow.poll(img)
 				blue.join()
-				green.join()
+				#green.join()
+				#yellow.join()
 			else:
 				print "Failed to grab new frame."
 			if cv2.waitKey(5) != -1:

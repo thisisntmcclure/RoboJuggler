@@ -8,12 +8,12 @@ import cv2
 import numpy as np
 
 # Global Variables
-VideoCapture = cv2.VideoCapture(0)
+VideoCapture = cv2.VideoCapture(1)
 circles = (0,0,0)
 
 COLOR_RANGE={
 'yellow': ((10, 100, 100), (40, 255, 255)),\
-'red': ((0, 0, 0), (190, 255, 255)),\
+'red': ((0, 0, 0), (10, 255, 255)),\
 'blue': (( 70 , 31 , 11), ( 120 , 255 , 255)),\
 'green': (( 40 , 80 , 32), (70 , 255 , 255)),\
 'orange': (( 160 , 100 , 47), (179 , 255 , 255))\
@@ -45,8 +45,9 @@ class Tracker(Thread):
 		hsv_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 		thresh = cv2.inRange(hsv_img, self.h_min, self.h_max)
 		thresh = cv2.GaussianBlur(thresh, (9,9), 0)
-		circles = cv2.HoughCircles((thresh), cv.CV_HOUGH_GRADIENT,dp=2,minDist=400,minRadius=10, maxRadius=200)
+		circles = cv2.HoughCircles((thresh), cv.CV_HOUGH_GRADIENT,dp=2,minDist=400,minRadius=25, maxRadius=200)
 		cv2.imshow(self.color, thresh)
+		cv2.imshow("HSV", hsv_img)
 		print circles
 		self.draw(thresh, circles)
 
@@ -67,8 +68,8 @@ class Tracker(Thread):
 					y = int(circle[1])
 	
 			if found:
-				cv2.circle(img, (x,y), 3, cv.RGB(0,255,0), -1, 8, 0)
-				cv2.circle(img, (x,y), maxRadius, cv.RGB(255,0,0), 3, 8, 0)
+				cv2.circle(img, (x,y), 3, self.display, -1, 8, 0)
+				cv2.circle(img, (x,y), maxRadius, self.display, 3, 8, 0)
 				print self.color + " ball found at: (", x, ",", y, ")"
 	
 		if self.flag:
@@ -84,11 +85,13 @@ if __name__ == '__main__':
 	cv2.namedWindow("Result", 0)
 	if VideoCapture:
 		frame_copy = None
-	yellow = Tracker("yellow", True)
-	green = Tracker("green", True)
+	#yellow = Tracker("yellow", True)
+	#green = Tracker("green", True)
 	blue = Tracker("blue", True)
+	red = Tracker("red", True)
+	red.start()
 	blue.start()
-	green.start()
+	#green.start()
 
 	while True:
 		try:
@@ -96,9 +99,11 @@ if __name__ == '__main__':
 			if success:
 				print "Grabbed frame:"
 				blue.poll(img)
-				green.poll(img)
+				#green.poll(img)
 				blue.join()
-				green.join()
+				#green.join()
+				red.poll(img)
+				red.join()
 			else:
 				print "Failed to grab new frame."
 			if cv2.waitKey(5) != -1:
