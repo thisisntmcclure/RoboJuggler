@@ -1,5 +1,9 @@
 from Tkinter import *
 import math
+import Image, ImageTk
+
+#TODO: implement the Window.setBackground() method so that it can
+#accept an openCV image and display it on the background
 
 class Window:
     def __init__(self,width=500,height=500):
@@ -10,6 +14,17 @@ class Window:
         self.root.resizable(width=False, height=False)
         self.canvas = Canvas(self.root, width=self.width, height=self.height)
         self.canvas.pack()
+
+    def setBackground(self):
+        """
+        This is not implemented yet, below is some example code that
+        converts an openCV image into an image that can be displayed
+        in Tkinter but it is untested
+        """
+        gray_im = cv2.cvtColor(f, cv2.COLOR_RGB2GRAY)
+        a = Image.fromarray(gray_im)
+        b = ImageTk.PhotoImage(image=a)
+        self.canvas.create_image(position=(0,0),image=b)
 
     def update(self):
         self.canvas.update()
@@ -44,7 +59,7 @@ class Ball(object):
 
     def moveTo(self, position):
         self.position = position
-        self.canvas.coords(self.canvObj,(self.position[0]-self.radius,self.position[1]-self.radius,self.position[0]+self.radius,self.position[1]+self.radius))
+        self.canvas.coords(self.canvObj,(self.position[0]-self.radius,self.position[1]-self.radius,self.position[0]+self.radius,self.position[1]+self.radius))        
 
 if __name__ == "__main__":
     window = Window()
