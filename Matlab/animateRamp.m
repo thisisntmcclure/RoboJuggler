@@ -1,7 +1,7 @@
 function animateRamp(t,x,y,theta,ramp_length)
 
     axis equal; hold on
-    plot(x,y,'.')
+%     plot(x,y,'.')
     %interpolate data
     tq = linspace(min(t),max(t));
     x = interp1(t,x,tq);

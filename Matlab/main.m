@@ -20,7 +20,11 @@ function main
                     'tspan',[0,3],...
                     'rampPolicy',@(t, state, airborne) 0);
                 
-    [t,x,y,theta,xe,ye]=fullSim(params, toss);
+    control = struct('V0',[0;0;0],...
+                    'tspan',[0,5],...
+                    'rampPolicy',linearControlPolicy(params));
+                
+    [t,x,y,theta,xe,ye]=fullSim(params, control);
     animateRamp(t,x,y,theta,params.l)
     plot(xe,ye,'ro'); hold on
 %     plot(x,y,'.-')
